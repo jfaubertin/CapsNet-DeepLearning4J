@@ -91,7 +91,7 @@ public class CapsActivation extends BaseActivationFunction
 //  scale = K.sqrt(s_squared_norm + K.epsilon())
 //  return vectors/scale
 
- INDArray squash(INDArray in)
+ static private INDArray squash(INDArray in)
  {
   System.out.println("@squash1()");
 
