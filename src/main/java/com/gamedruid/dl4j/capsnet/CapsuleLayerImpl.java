@@ -193,7 +193,7 @@ public class CapsuleLayerImpl extends BaseLayer<CapsuleLayer>
 
 //=======================================================================//
 
- public INDArray dynamicRouting(INDArray inputs, INDArray weights)
+ protected INDArray dynamicRouting(INDArray inputs, INDArray weights)
  {
   // System.out.println("\ndynamicRouting()\n");
 
@@ -261,7 +261,7 @@ public class CapsuleLayerImpl extends BaseLayer<CapsuleLayer>
 //=======================================================================//
 //=======================================================================//
 
- INDArray softmax1(INDArray in, int axis)
+ static private INDArray softmax1(INDArray in, int axis)
  {
   INDArray out = in.dup();
   CustomOp op = DynamicCustomOp.builder("softmax").addInputs(in).addOutputs(out).addIntegerArguments(axis).build();
@@ -279,7 +279,7 @@ public class CapsuleLayerImpl extends BaseLayer<CapsuleLayer>
 //  scale = K.sqrt(s_squared_norm + K.epsilon())
 //  return vectors/scale
 
- INDArray squash2(INDArray in)
+ static private INDArray squash2(INDArray in)
  {
 //  System.out.println("@squash2()");
 
@@ -306,7 +306,7 @@ public class CapsuleLayerImpl extends BaseLayer<CapsuleLayer>
 //=======================================================================//
 
  // insert dimension of size "1" at shape[dim]
- static INDArray expand_dims(INDArray orig, int dim)
+ static private INDArray expand_dims(INDArray orig, int dim)
  {
   if (dim < 0)  dim = orig.rank() + dim; // for python users
 
@@ -329,7 +329,7 @@ public class CapsuleLayerImpl extends BaseLayer<CapsuleLayer>
 
 
  // batch_dot with x.shape(3 dims), y.shape(4 dims), axes = 2,3
- INDArray bd_23(INDArray x, INDArray y)
+ static private INDArray bd_23(INDArray x, INDArray y)
  {
   int a0 = 2; // axes[0];
   int a1 = 3; // axes[1];
@@ -337,19 +337,19 @@ public class CapsuleLayerImpl extends BaseLayer<CapsuleLayer>
   long[] x_shape = x.shape();
   long[] y_shape = y.shape();
 
-  //System.out.println("  bd.x = " + Arrays.toString(x.shape()));
-  //System.out.println("  bd.y = " + Arrays.toString(y.shape()));
+//  System.out.println("  bd23.x = " + Arrays.toString(x.shape()));
+//  System.out.println("  bd23.y = " + Arrays.toString(y.shape()));
 
   INDArray result = Nd4j.zeros(new long[]{ x_shape[0], x_shape[1], 1, y_shape[2] });
 
   x = expand_dims(x, 2);
   y = y.swapAxes(3,2);
 
-  //System.out.println("  bd.x = " + Arrays.toString(x.shape()));
-  //System.out.println("  bd.y = " + Arrays.toString(y.shape()));
+  //System.out.println("  bd23.x = " + Arrays.toString(x.shape()));
+  //System.out.println("  bd23.y = " + Arrays.toString(y.shape()));
 
   Nd4j.getExecutioner().exec(new Mmul(x,y,result, MMulTranspose.allFalse()));
-  //System.out.println("  bd.result = " + Arrays.toString(result.shape()));
+  //System.out.println("  bd23.result = " + Arrays.toString(result.shape()));
 
   long[] r_shape = result.shape();
 
@@ -359,7 +359,7 @@ public class CapsuleLayerImpl extends BaseLayer<CapsuleLayer>
 //=======================================================================//
 
  // batch_dot with x.shape(3 dims), y.shape(4 dims), axes = 2,2
- INDArray bd_cihat_22(INDArray x, INDArray y)
+ static private INDArray bd_cihat_22(INDArray x, INDArray y)
  {
   int a0 = 2; // axes[0];
   int a1 = 2; // axes[1];
@@ -367,25 +367,27 @@ public class CapsuleLayerImpl extends BaseLayer<CapsuleLayer>
   long[] x_shape = x.shape();
   long[] y_shape = y.shape();
 
-//  System.out.println("  bd.x = " + Arrays.toString(x.shape()));
-//  System.out.println("  bd.y = " + Arrays.toString(y.shape()));
+//  System.out.println("  bd22.x = " + Arrays.toString(x.shape()));
+//  System.out.println("  bd22.y = " + Arrays.toString(y.shape()));
 
   INDArray result = Nd4j.zeros(new long[]{ x_shape[0], x_shape[1], 1, y_shape[3] });
 
   x = expand_dims(x, 2);
   //y = y.swapAxes(3,2);
 
-//  System.out.println("  bd.x = " + Arrays.toString(x.shape()));
-//  System.out.println("  bd.y = " + Arrays.toString(y.shape()));
+//  System.out.println("  bd22.x = " + Arrays.toString(x.shape()));
+//  System.out.println("  bd22.y = " + Arrays.toString(y.shape()));
 
   Nd4j.getExecutioner().exec(new Mmul(x,y,result, MMulTranspose.allFalse()));
-//  System.out.println("  bd.result = " + Arrays.toString(result.shape()));
+//  System.out.println("  bd22.result = " + Arrays.toString(result.shape()));
 
   long[] r_shape = result.shape();
 
   return result.reshape(new long[]{ r_shape[0], r_shape[1], r_shape[3] });
  }
 
+//=======================================================================//
+//=======================================================================//
 //=======================================================================//
 
 }
