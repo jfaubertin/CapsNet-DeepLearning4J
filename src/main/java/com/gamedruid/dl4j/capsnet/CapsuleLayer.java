@@ -29,13 +29,14 @@ public class CapsuleLayer extends FeedForwardLayer
 {
 //=======================================================================//
 
- private int i_num_capsules = 0; // 16 // i (int): Number of input (child?) capsules
- private int i_dim_capsules = 0; // 16 // m (int): Vector length of input (child?) capsules
+ // depends on PrimaryCaps / Convolutional Layer
+ private int i_num_capsules = 0; // 16  //  Number of input (child?) capsules
+ private int i_dim_capsules = 0; // 16  //  Vector length of input (child?) capsules
 
- private int o_num_capsules = 0; // 10  // j (int): Number of output (parent?) capsules.
- private int o_dim_capsules = 0; // 16  // n (int): Vector length of output (parent?) capsules.
+ private int o_num_capsules = 0; // 10  //  Number of output (parent?) capsules.
+ private int o_dim_capsules = 0; // 16  //  Vector length of output (parent?) capsules.
 
- private int batch_size     = 0; // 100  // b (int): batch // FIXME: should this come from input[0]?
+// private int batch_size     = 0; // 100  // b (int): batch // FIXME: should this come from input[0]?
  private int routings       = 0; // 8
 
  // REM:  input.shape = [ batch,  input_num_caps,  input_dim_caps ]
@@ -56,11 +57,11 @@ public class CapsuleLayer extends FeedForwardLayer
   // TODO: infer num/dim of input capules from input size? or vice-versa?
   // TODO: infer num/dim of output capules from output size? or vice-versa?
 
+//  this.batch_size     = builder.batch_size;
   this.i_num_capsules = builder.i_num_capsules;
   this.i_dim_capsules = builder.i_dim_capsules;
   this.o_num_capsules = builder.o_num_capsules;
   this.o_dim_capsules = builder.o_dim_capsules;
-  this.batch_size     = builder.batch_size;
   this.routings       = builder.routings;
  }
 
@@ -153,9 +154,16 @@ public class CapsuleLayer extends FeedForwardLayer
   private int o_num_capsules = 0; // 10
   private int o_dim_capsules = 0; // 16
 
-  private int batch_size     = 0; // 100  // FIXME: should this come from input[0]?
+//  private int batch_size     = 0; // 100  // FIXME: should this come from input[0]?
   private int routings       = 0; // 8
 
+
+  public Builder setInputCapsules(int num, int dim)
+  {
+   this.i_num_capsules=num;
+   this.i_dim_capsules=dim;
+   return this;
+  }
 
   public Builder setInputNumCapsules(int num)
   {
@@ -163,21 +171,32 @@ public class CapsuleLayer extends FeedForwardLayer
    return this;
   }
 
-  public Builder setInputDimCapsules(int num)
+  public Builder setInputDimCapsules(int dim)
   {
-   this.i_dim_capsules=num;
+   this.i_dim_capsules=dim;
+   return this;
+  }
+
+  public Builder setOutputCapsules(int num, int dim)
+  {
+   this.o_num_capsules=num;
+   this.o_dim_capsules=dim;
+
+   nOut(this.o_num_capsules * this.o_dim_capsules);
    return this;
   }
 
   public Builder setOutputNumCapsules(int num)
   {
    this.o_num_capsules=num;
+   nOut(this.o_num_capsules * this.o_dim_capsules);
    return this;
   }
 
-  public Builder setOutputDimCapsules(int num)
+  public Builder setOutputDimCapsules(int dim)
   {
-   this.o_dim_capsules=num;
+   this.o_dim_capsules=dim;
+   nOut(this.o_num_capsules * this.o_dim_capsules);
    return this;
   }
 
@@ -194,6 +213,26 @@ public class CapsuleLayer extends FeedForwardLayer
   public CapsuleLayer build()
   {
    return new CapsuleLayer(this);
+  }
+
+  // use this one it's better
+  public Builder(int i_num_capsules, int i_dim_capsules, int o_num_capsules, int o_dim_capsules, int routings)
+  {
+   this.i_num_capsules=i_num_capsules;
+   this.i_dim_capsules=i_dim_capsules;
+   this.o_num_capsules=o_num_capsules;
+   this.o_dim_capsules=o_dim_capsules;
+   this.routings=routings;
+  }
+
+  // or this one
+  public Builder(int[] i_capsules, int[] o_capsules, int routings)
+  {
+   this.i_num_capsules=i_capsules[0];
+   this.i_dim_capsules=i_capsules[1];
+   this.o_num_capsules=o_capsules[0];
+   this.o_dim_capsules=o_capsules[1];
+   this.routings=routings;
   }
  }
 

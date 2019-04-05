@@ -146,13 +146,13 @@ public class Cifar
     .activation(new CapsActivation())
     .biasInit(1e-2).build())
 
-
+   // Input capsules num+dim, output num+dim, routings
    // InputNumCapsules = PrimaryCaps depth
    // InputDimCapsules = PrimaryCaps width * height
-   .layer(3, new CapsuleLayer.Builder().name("DigitCaps1")
-     .setInputNumCapsules(32).setInputDimCapsules(16) // FIXME: input should already have this shape
-     .setOutputNumCapsules(16).setOutputDimCapsules(16)
-     .setRoutings(8)
+   .layer(3, new CapsuleLayer.Builder( new int[]{32,16}, new int[]{16,16}, 8 ).name("DigitCaps1")
+//     .setInputNumCapsules(32).setInputDimCapsules(16) // FIXME: input should already have this shape
+//     .setOutputNumCapsules(16).setOutputDimCapsules(16)
+//     .setRoutings(8)
      .nOut(256) // FIXME: nOut = OutputNumCapsules * OutputDimCapsules
      .updater(new Adam(1e-3)).biasInit(1e-3).biasUpdater(new Adam(1e-3*2)).build())
 
